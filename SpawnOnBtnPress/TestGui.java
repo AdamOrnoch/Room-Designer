@@ -11,27 +11,75 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
-class CursorTrackingJPanel extends JPanel{
-    private CustomJ selectedSquare;
+class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionListener{
+    public CustomJ selectedSquare;
+    private Point startPoint;
 
     CursorTrackingJPanel(){
-        addMouseMotionListener(new MouseAdapter(){
-            public void mouseDragged(MouseEvent e){
-                selectedSquare.move(e.getX(),e.getY());
-            }
-        });
+        
     }
 
     public void assignMoveableToObject(CustomJ component){
         selectedSquare = component;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        Point location = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
+        if (selectedSquare.getParent().getBounds().contains(location)){
+            Point newLocation = selectedSquare.getLocation();
+            newLocation.translate(location.x - startPoint.x, location.y - startPoint.y);
+            newLocation.x = Math.max(newLocation.x, 0);
+            newLocation.y = Math.max(newLocation.y, 0);
+            newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
+            newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
+            selectedSquare.setLocation(newLocation);
+            startPoint = location;
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // TODO Auto-generated method stub
+    //    throw new UnsupportedOperationException("Unimplemented method 'mouseMoved'");
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // TODO Auto-generated method stub
+    //    throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        startPoint = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        startPoint = null;
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+   //     throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+     //   throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
     }
 
 
@@ -71,10 +119,11 @@ public class TestGui {
         roomZone.setVisible(true);
         f.add(roomZone);
 
-        //CustomJ p2 = new CustomJ(0, 0);
-        //p2.setVisible(false);
-        //f.add(p2);
-        //f.selectedSquare = p2;
+        CustomJ p2 = new CustomJ(0, 0, roomZone);
+        p2.setVisible(true);
+        roomZone.add(p2);
+        roomZone.selectedSquare = p2;
+
 
         JButton btn1 = new JButton("REMOVE");
         btn1.setBorder(BorderFactory.createCompoundBorder(
@@ -119,7 +168,10 @@ class CustomJ extends JPanel{
         setBackground(Color.ORANGE);
         setVisible(true);
 
-        addMouseListener(new MyMouseListener(panel, this));
+        this.addMouseListener(panel);
+        this.addMouseMotionListener(panel);
+
+        //addMouseListener(new MyMouseListener(panel, this));
     }
 
     public void move(int x, int y){
