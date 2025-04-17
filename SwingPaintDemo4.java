@@ -97,7 +97,7 @@ class MyPanel extends JPanel {
         final int CURR_Y = redSquare.getY();
         final int CURR_W = redSquare.getWidth();
         final int CURR_H = redSquare.getHeight();
-        final int OFFSET = 1;
+        final int OFFSET = 50;
 
         if ((CURR_X!=x) || (CURR_Y!=y)) {
 
