@@ -23,10 +23,10 @@ import java.util.ArrayList;
 
 class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionListener{
     public CustomJ selectedSquare;
-    private Point startPoint;
+    public Point startPoint;
 
-    public void assignMoveableToObject(CustomJ component){
-        selectedSquare = component;
+    public void assignMoveableToObject(CustomJ square){
+        selectedSquare = square;
     }
 
     @Override
@@ -65,6 +65,7 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mousePressed(MouseEvent e) {
+
         startPoint = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
     }
 
@@ -122,12 +123,6 @@ public class TestGui {
         roomZone.setVisible(true);
         f.add(roomZone);
 
-        CustomJ p2 = new CustomJ(0, 0, roomZone);
-        p2.setVisible(true);
-        roomZone.add(p2);
-        roomZone.selectedSquare = p2;
-
-
         JButton btn1 = new JButton("REMOVE");
         btn1.setBorder(BorderFactory.createCompoundBorder(
                    BorderFactory.createLineBorder(Color.red),
@@ -153,10 +148,11 @@ public class TestGui {
         btn2.addActionListener(new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e){
-            CustomJ t = new CustomJ(0, 0, roomZone);
+            CustomJ t = new CustomJ(10, 10, roomZone);
             visibleObjectArray.add(t);
             roomZone.add(t);
             roomZone.assignMoveableToObject(t);
+            roomZone.repaint();
         }
     });
         p1.add(btn2);
@@ -164,9 +160,11 @@ public class TestGui {
 }
 
 
-class CustomJ extends JPanel{
-    public CustomJ(int startingX, int startingY, CursorTrackingJPanel panel){
-        setBounds(startingX, startingY, 50, 50);
+class CustomJ extends JPanel implements MouseListener{
+    private CursorTrackingJPanel panel;
+    public CustomJ(int startingX, int startingY, CursorTrackingJPanel p){
+        panel = p;
+        this.setBounds(startingX, startingY, 50, 50);
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.ORANGE);
         setVisible(true);
@@ -174,30 +172,40 @@ class CustomJ extends JPanel{
         this.addMouseListener(panel);
         this.addMouseMotionListener(panel);
 
-        //addMouseListener(new MyMouseListener(panel, this));
+        addMouseListener(this);
+
     }
 
-    public void move(int x, int y){
-        setBounds(x, y, 50, 50);
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
     }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        panel.startPoint = SwingUtilities.convertPoint(this, e.getPoint(), this.getParent());
+        panel.assignMoveableToObject(this);
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+    }
+
 }
-
-    class MyMouseListener implements MouseListener {
-        CursorTrackingJPanel panel;
-        CustomJ moveableObj;
-        MyMouseListener(CursorTrackingJPanel p, CustomJ obj){
-            panel = p;
-            moveableObj = obj;
-        }
-    public void mouseClicked(MouseEvent event) {
-    } 
-    public void mouseEntered(MouseEvent event) {
-    }
-    public void mouseExited(MouseEvent event) {
-    }
-    public void mousePressed(MouseEvent event) {
-        panel.assignMoveableToObject(moveableObj);
-        System.out.println("pressed");} 
-    public void mouseReleased(MouseEvent event) {
-    }
-    } // inner class clickListener
