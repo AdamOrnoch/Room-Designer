@@ -13,11 +13,26 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
+class CustomFrame extends JFrame{
+    public CustomJ selectedSquare;
+
+    CustomFrame(){
+        addMouseMotionListener(new MouseAdapter(){
+            public void mouseDragged(MouseEvent e){
+                selectedSquare.move(e.getX(),e.getY());
+            }
+        });
+    }
+}
 
 
 public class TestGui {
-    public static JFrame f;
+    public static CustomFrame f;
+
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -27,8 +42,10 @@ public class TestGui {
         });
     }
 
+    
+
     public static void createGui(){
-        f = new JFrame();
+        f = new CustomFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         f.setSize(500,500);
         f.setVisible(true);
@@ -43,6 +60,7 @@ public class TestGui {
         CustomJ p2 = new CustomJ(0, 0);
         p2.setVisible(false);
         f.add(p2);
+        f.selectedSquare = p2;
 
         JButton btn1 = new JButton();
         btn1.setBorder(BorderFactory.createCompoundBorder(
@@ -71,7 +89,7 @@ public class TestGui {
         btn2.addActionListener(new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e){
-            p2.move();
+            System.out.println("Filler");
         }
     });
         p1.add(btn2);
@@ -80,19 +98,13 @@ public class TestGui {
 
 
 class CustomJ extends JPanel{
-    int curX;
-    int curY;
     public CustomJ(int startingX, int startingY){
         setBounds(startingX, startingY, 50, 50);
-        curX = startingX;
-        curY = startingY;
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.ORANGE);
     }
 
-    public void move(){
-        curX+=10;
-        curY+=10;
-        setBounds(curX, curY, 50, 50);
+    public void move(int x, int y){
+        setBounds(x, y, 50, 50);
     }
 }
