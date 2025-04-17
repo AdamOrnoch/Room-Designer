@@ -25,24 +25,27 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
     public CustomJ selectedSquare;
     private Point startPoint;
 
-    CursorTrackingJPanel(){
-        
-    }
-
     public void assignMoveableToObject(CustomJ component){
         selectedSquare = component;
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        Point location = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
-        if (selectedSquare.getParent().getBounds().contains(location)){
+
+        //Converts the point at the cursor within 'selectedSquare' system into the parents system
+        Point location = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent()); 
+        
+        
+        if (selectedSquare.getParent().getBounds().contains(location)){ //if cursor within selectedSquare is contained within selectedSquare.parent()
             Point newLocation = selectedSquare.getLocation();
             newLocation.translate(location.x - startPoint.x, location.y - startPoint.y);
+
+            //Makes sure selectedSquare doesn't leave its parent's boundary
             newLocation.x = Math.max(newLocation.x, 0);
             newLocation.y = Math.max(newLocation.y, 0);
             newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
-            newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
+            newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getHeight() - selectedSquare.getHeight());
+
             selectedSquare.setLocation(newLocation);
             startPoint = location;
         }
@@ -103,7 +106,7 @@ public class TestGui {
     public static void createGui(){
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        f.setSize(500,500);
+        f.setSize(600,500);
         f.setVisible(true);
         f.setLayout(null);
 
@@ -115,7 +118,7 @@ public class TestGui {
 
         roomZone = new CursorTrackingJPanel();
         roomZone.setBackground(Color.GREEN);
-        roomZone.setBounds(0, 0, 500, 300);
+        roomZone.setBounds(0, 0, 500, 200);
         roomZone.setVisible(true);
         f.add(roomZone);
 
