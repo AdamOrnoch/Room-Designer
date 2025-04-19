@@ -1,24 +1,29 @@
 package SpawnOnBtnPress;
 
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseListener;
+import java.awt.Toolkit;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.LayoutManager;
 import java.util.ArrayList;
 
 class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionListener{
@@ -99,6 +104,10 @@ public class TestGui {
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                double width = screenSize.getWidth();
+                double height = screenSize.getHeight();
+                System.out.println(Double.toString(width) + " " + Double.toString(height));
                 createGui(); 
             }
         });
@@ -107,38 +116,76 @@ public class TestGui {
     public static void createGui(){
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        f.setSize(600,500);
+        f.setSize(1600,900);
+
+        //Fullscreen code:
+        //GraphicsEnvironment graphics = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        //GraphicsDevice device = graphics.getDefaultScreenDevice();
+        //device.setFullScreenWindow(f);  
+
         f.setVisible(true);
         f.setLayout(null);
 
-        JPanel p1 = new JPanel();
-        p1.setBackground(Color.BLUE);
-        p1.setBounds(0, 400, 500, 100);
-        p1.setLayout(new FlowLayout(FlowLayout.CENTER));
-        f.add(p1);
-
         roomZone = new CursorTrackingJPanel();
-        roomZone.setBackground(Color.GREEN);
-        roomZone.setBounds(0, 0, 500, 200);
+        roomZone.setBackground(Color.WHITE);
+        roomZone.setBounds(0, 70, 1300, 830);
         roomZone.setVisible(true);
         f.add(roomZone);
 
+        JPanel topPanel = new JPanel();
+        topPanel.setBackground(new Color(102, 153, 153, 255));
+        topPanel.setBounds(0, 0, 1300, 70);
+        f.add(topPanel);
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setBackground(new Color(153, 204, 255, 255));
+        rightPanel.setBounds(1300, 0, 300, 900);
+        rightPanel.setLayout(null);
+        f.add(rightPanel);
+
+        JPanel innerScrollPanel = new JPanel();
+        innerScrollPanel.setLayout(new BoxLayout(innerScrollPanel, BoxLayout.PAGE_AXIS));
+
+
+        JScrollPane scrollItemsPanel = new JScrollPane(innerScrollPanel);
+        rightPanel.add(scrollItemsPanel);
+        scrollItemsPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollItemsPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollItemsPanel.setBounds(0, 0, 285, 700);
+
+        JLabel icon1 = new JLabel("SQUARE");
+        icon1.setAlignmentX(icon1.CENTER_ALIGNMENT);
+        icon1.setBorder(new EmptyBorder(30, 0, 0, 30));
+        innerScrollPanel.add(icon1);
+
+        JLabel icon2 = new JLabel("Shape 2");
+        icon2.setAlignmentX(icon2.CENTER_ALIGNMENT);
+        icon2.setBorder(new EmptyBorder(30, 0, 0, 30));
+        innerScrollPanel.add(icon2);
+
+        JLabel icon3 = new JLabel("Shape 3");
+        icon3.setAlignmentX(icon3.CENTER_ALIGNMENT);
+        icon3.setBorder(new EmptyBorder(30, 0, 0, 30));
+        innerScrollPanel.add(icon3);
+
+        
+
+
         JButton btn1 = new JButton("REMOVE");
-        btn1.setBorder(BorderFactory.createCompoundBorder(
-                   BorderFactory.createLineBorder(Color.red),
-                   btn1.getBorder()));
-                   btn1.setPreferredSize(new Dimension(100, 50));
         btn1.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
-                roomZone.remove(visibleObjectArray.get(0));
-                visibleObjectArray.remove(0);
-                roomZone.repaint();
+                if (!visibleObjectArray.isEmpty()){
+                    roomZone.remove(visibleObjectArray.get(0));
+                    visibleObjectArray.remove(0);
+                    roomZone.repaint();
+                }
             }
         });
 
 
-        p1.add(btn1);
+        rightPanel.add(btn1);
+        btn1.setBounds(0, 700, 300, 200);
 
         JButton btn2 = new JButton("ADD");
         btn2.setBorder(BorderFactory.createCompoundBorder(
@@ -155,7 +202,9 @@ public class TestGui {
             roomZone.repaint();
         }
     });
-        p1.add(btn2);
+
+    innerScrollPanel.add(btn2);
+    btn2.setAlignmentX(btn2.CENTER_ALIGNMENT);
     }   
 }
 
