@@ -39,12 +39,43 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
         //Converts the point at the cursor within 'selectedSquare' system into the parents system
         Point location = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent()); 
+        //System.out.println(location + " " + e.getPoint());
         
-        
-        if (selectedSquare.getParent().getBounds().contains(location)){ //if cursor within selectedSquare is contained within selectedSquare.parent()
-            Point newLocation = selectedSquare.getLocation();
-            newLocation.translate(location.x - startPoint.x, location.y - startPoint.y);
+        //Border checking doesn't work
+        Point newLocation = selectedSquare.getLocation();
+        newLocation.translate(location.x - startPoint.x, location.y - startPoint.y);
 
+        //COLLISION LOGIC
+        if (TestGui.visibleObjectArray.size() > 1){ //2 squares test
+            CustomJ o2 = TestGui.visibleObjectArray.get(1);
+            if (TestGui.visibleObjectArray.get(0).getBounds().intersects(TestGui.visibleObjectArray.get(1).getBounds())){ // Checks for intersection
+                if (((newLocation.y >= o2.getY()) && (newLocation.y <= (o2.getY()+o2.getHeight()))) ||
+                ((newLocation.y+selectedSquare.getHeight() >= o2.getY()) && (newLocation.y+selectedSquare.getHeight() <= (o2.getY()+o2.getHeight())))){ 
+                    if (newLocation.x > o2.getX()+(o2.getWidth()/2)){ //checks if on right side
+                        newLocation.x = Math.max(newLocation.x, o2.getX()+o2.getWidth());
+                    } else{ // left side
+                        newLocation.x = Math.min(newLocation.x, o2.getX()-selectedSquare.getWidth());
+                    }
+                } else{
+                    if (newLocation.y > o2.getY()+(o2.getHeight()/2)){ 
+                        newLocation.y = Math.min(newLocation.y, o2.getY()+1);
+                    } else{ 
+                        newLocation.x = Math.min(newLocation.x, o2.getX()-selectedSquare.getWidth());
+                    }
+                }
+                //System.out.println(TestGui.visibleObjectArray.get(1).getX()+TestGui.visibleObjectArray.get(1).getWidth()+" "+newLocation.x);
+                //newLocation.y = Math.max(newLocation.y, 0);
+                //newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
+                //newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getHeight() - selectedSquare.getHeight());
+
+                selectedSquare.setLocation(newLocation);
+                startPoint = location;
+            }else{
+
+                selectedSquare.setLocation(newLocation);
+                startPoint = location;
+            }
+        }else{
             //Makes sure selectedSquare doesn't leave its parent's boundary
             newLocation.x = Math.max(newLocation.x, 0);
             newLocation.y = Math.max(newLocation.y, 0);
@@ -53,7 +84,7 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
             selectedSquare.setLocation(newLocation);
             startPoint = location;
-        }
+        }  
     }
 
     @Override
@@ -116,7 +147,8 @@ public class TestGui {
     public static void createGui(){
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        f.setSize(1600,900);
+        f.setResizable(false);
+        f.setSize(1600,939);
 
         //Fullscreen code:
         //GraphicsEnvironment graphics = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -127,7 +159,7 @@ public class TestGui {
         f.setLayout(null);
 
         roomZone = new CursorTrackingJPanel();
-        roomZone.setBackground(Color.WHITE);
+        roomZone.setBackground(Color.GRAY);
         roomZone.setBounds(0, 70, 1300, 830);
         roomZone.setVisible(true);
         f.add(roomZone);
