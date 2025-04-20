@@ -15,6 +15,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -48,7 +49,7 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
         //COLLISION LOGIC
         if (TestGui.visibleObjectArray.size() > 1){ //2 squares test
             CustomJ o2 = TestGui.visibleObjectArray.get(1);
-            if (TestGui.visibleObjectArray.get(0).getBounds().intersects(TestGui.visibleObjectArray.get(1).getBounds())){ // Checks for intersection
+            if (TestGui.visibleObjectArray.get(0).getCollider().getBounds().intersects(TestGui.visibleObjectArray.get(1).getCollider().getBounds())){ // Checks for intersection
                 if (((newLocation.y >= o2.getY()) && (newLocation.y <= (o2.getY()+o2.getHeight()))) ||
                 ((newLocation.y+selectedSquare.getHeight() >= o2.getY()) && (newLocation.y+selectedSquare.getHeight() <= (o2.getY()+o2.getHeight())))){ 
                     if (newLocation.x > o2.getX()+(o2.getWidth()/2)){ //checks if on right side
@@ -68,11 +69,11 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
                 //newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
                 //newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getHeight() - selectedSquare.getHeight());
 
-                selectedSquare.setLocation(newLocation);
+                selectedSquare.translateTo(newLocation);
                 startPoint = location;
             }else{
 
-                selectedSquare.setLocation(newLocation);
+                selectedSquare.translateTo(newLocation);
                 startPoint = location;
             }
         }else{
@@ -82,7 +83,7 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
             newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
             newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getHeight() - selectedSquare.getHeight());
 
-            selectedSquare.setLocation(newLocation);
+            selectedSquare.translateTo(newLocation);
             startPoint = location;
         }  
     }
@@ -149,11 +150,6 @@ public class TestGui {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         f.setResizable(false);
         f.setSize(1600,939);
-
-        //Fullscreen code:
-        //GraphicsEnvironment graphics = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        //GraphicsDevice device = graphics.getDefaultScreenDevice();
-        //device.setFullScreenWindow(f);  
 
         f.setVisible(true);
         f.setLayout(null);
@@ -243,9 +239,12 @@ public class TestGui {
 
 class CustomJ extends JPanel implements MouseListener{
     private CursorTrackingJPanel panel;
+    private Rectangle collider;
     public CustomJ(int startingX, int startingY, CursorTrackingJPanel p){
         panel = p;
         this.setBounds(startingX, startingY, 50, 50);
+        collider = new Rectangle(startingX-1, startingY-1, 52, 52); //Creates collier 1 pixel bigger
+
         setBorder(BorderFactory.createLineBorder(Color.black));
         setBackground(Color.ORANGE);
         setVisible(true);
@@ -255,6 +254,16 @@ class CustomJ extends JPanel implements MouseListener{
 
         addMouseListener(this);
 
+    }
+
+    public Rectangle getCollider(){
+        return this.collider;
+    }
+
+    public void translateTo(Point newLocation){ //Translate square and collider
+        this.setLocation(newLocation);
+        newLocation.translate(-1, -1);
+        this.collider.setLocation(newLocation);
     }
 
     @Override
