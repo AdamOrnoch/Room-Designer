@@ -35,8 +35,8 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
         if (selectedSquare != null){
             selectedSquare.changeColorDefault();
         }
-        selectedSquare = square;
-        selectedSquare.changeColorSelected();
+        this.selectedSquare = square;
+        this.selectedSquare.changeColorSelected();
     }
 
     public CustomJ getSelectedSquare(){
@@ -115,8 +115,9 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mousePressed(MouseEvent e) {
-
-        startPoint = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
+        if (selectedSquare != null){
+            startPoint = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent());
+        }
     }
 
     @Override
@@ -217,10 +218,13 @@ public class TestGui {
             @Override
             public void actionPerformed(ActionEvent e){
                 if (!visibleObjectArray.isEmpty()){
-                    roomZone.remove(visibleObjectArray.get(0));
-                    visibleObjectArray.remove(0);
+                    CustomJ cur = roomZone.getSelectedSquare();
+                    roomZone.remove(cur);
+                    visibleObjectArray.remove(cur);
                     roomZone.repaint();
+                    roomZone.selectedSquare = null;
                 }
+                System.out.println(visibleObjectArray);
             }
         });
 
@@ -300,8 +304,10 @@ class CustomJ extends JPanel implements MouseListener{
 
     @Override
     public void mousePressed(MouseEvent e) {
-        panel.startPoint = SwingUtilities.convertPoint(this, e.getPoint(), this.getParent());
         panel.assignMoveableToObject(this);
+        panel.startPoint = SwingUtilities.convertPoint(this, e.getPoint(), this.getParent());
+
+
         // TODO Auto-generated method stub
         //throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
     }
