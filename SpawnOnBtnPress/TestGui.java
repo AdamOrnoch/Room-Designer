@@ -32,51 +32,39 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
     public Point startPoint;
 
     public void assignMoveableToObject(CustomJ square){
+        if (selectedSquare != null){
+            selectedSquare.changeColorDefault();
+        }
         selectedSquare = square;
+        selectedSquare.changeColorSelected();
+    }
+
+    public CustomJ getSelectedSquare(){
+        return selectedSquare;
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-
         //Converts the point at the cursor within 'selectedSquare' system into the parents system
         Point location = SwingUtilities.convertPoint(selectedSquare, e.getPoint(), selectedSquare.getParent()); 
-        //System.out.println(location + " " + e.getPoint());
         
         //Border checking doesn't work
         Point newLocation = selectedSquare.getLocation();
         newLocation.translate(location.x - startPoint.x, location.y - startPoint.y);
 
         //COLLISION LOGIC
-        if (TestGui.visibleObjectArray.size() > 1){ //2 squares test
-            CustomJ o2 = TestGui.visibleObjectArray.get(1);
-            if (TestGui.visibleObjectArray.get(0).getCollider().getBounds().intersects(TestGui.visibleObjectArray.get(1).getCollider().getBounds())){ // Checks for intersection
-                if (((newLocation.y >= o2.getY()) && (newLocation.y <= (o2.getY()+o2.getHeight()))) ||
-                ((newLocation.y+selectedSquare.getHeight() >= o2.getY()) && (newLocation.y+selectedSquare.getHeight() <= (o2.getY()+o2.getHeight())))){ 
-                    if (newLocation.x > o2.getX()+(o2.getWidth()/2)){ //checks if on right side
-                        newLocation.x = Math.max(newLocation.x, o2.getX()+o2.getWidth());
-                    } else{ // left side
-                        newLocation.x = Math.min(newLocation.x, o2.getX()-selectedSquare.getWidth());
-                    }
-                } else{
-                    if (newLocation.y > o2.getY()+(o2.getHeight()/2)){ 
-                        newLocation.y = Math.min(newLocation.y, o2.getY()+1);
-                    } else{ 
-                        newLocation.x = Math.min(newLocation.x, o2.getX()-selectedSquare.getWidth());
-                    }
-                }
-                //System.out.println(TestGui.visibleObjectArray.get(1).getX()+TestGui.visibleObjectArray.get(1).getWidth()+" "+newLocation.x);
-                //newLocation.y = Math.max(newLocation.y, 0);
-                //newLocation.x = Math.min(newLocation.x, selectedSquare.getParent().getWidth() - selectedSquare.getWidth());
-                //newLocation.y = Math.min(newLocation.y, selectedSquare.getParent().getHeight() - selectedSquare.getHeight());
-
-                selectedSquare.translateTo(newLocation);
-                startPoint = location;
-            }else{
-
-                selectedSquare.translateTo(newLocation);
-                startPoint = location;
+        Boolean isCollision = false;
+        for (CustomJ otherSquare:TestGui.visibleObjectArray){
+            if (otherSquare != selectedSquare){
+                if (selectedSquare.checkForCollision(otherSquare)){ // Checks for intersection
+                    newLocation = resolveCollision(selectedSquare.getBounds(), otherSquare.getBounds());
+                    selectedSquare.translateTo(newLocation);
+                    startPoint = location;
+                    isCollision = true;
+                }      
             }
-        }else{
+        }
+        if (isCollision == false){
             //Makes sure selectedSquare doesn't leave its parent's boundary
             newLocation.x = Math.max(newLocation.x, 0);
             newLocation.y = Math.max(newLocation.y, 0);
@@ -86,6 +74,31 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
             selectedSquare.translateTo(newLocation);
             startPoint = location;
         }  
+    }
+    
+    public Point resolveCollision(Rectangle s1, Rectangle s2) {
+        // Calculate overlap on both axes
+        Integer overlapX = Math.min(s1.x + s1.width, s2.x + s2.width) - Math.max(s1.x, s2.x);
+        Integer overlapY = Math.min(s1.y + s1.height, s2.y + s2.height) - Math.max(s1.y, s2.y);
+
+        Point newLocation = s1.getLocation();
+    
+        // Move in the direction of the least penetration
+        if (overlapX < overlapY) {
+            if (s1.x < s2.x) {
+                newLocation.x -= overlapX;
+            } else {
+                newLocation.x += overlapX;
+            }
+        } else {
+            if (s1.y < s2.y) {
+                newLocation.y -= overlapY;
+            } else {
+                newLocation.y += overlapY;
+            }
+        }
+
+        return newLocation;
     }
 
     @Override
@@ -243,10 +256,10 @@ class CustomJ extends JPanel implements MouseListener{
     public CustomJ(int startingX, int startingY, CursorTrackingJPanel p){
         panel = p;
         this.setBounds(startingX, startingY, 50, 50);
-        collider = new Rectangle(startingX-1, startingY-1, 52, 52); //Creates collier 1 pixel bigger
+        collider = new Rectangle(startingX, startingY, 50, 50); //Creates collider 1 pixel bigger
 
         setBorder(BorderFactory.createLineBorder(Color.black));
-        setBackground(Color.ORANGE);
+        changeColorDefault();
         setVisible(true);
 
         this.addMouseListener(panel);
@@ -256,14 +269,27 @@ class CustomJ extends JPanel implements MouseListener{
 
     }
 
+    public void changeColorDefault(){
+        setBackground(Color.ORANGE);
+    }
+    public void changeColorSelected(){
+        setBackground(Color.RED);
+    }
+
+    public boolean checkForCollision(CustomJ other){
+        if (this.collider.intersects(other.getCollider())){
+            return true;
+        }
+        return false;
+    }
+
     public Rectangle getCollider(){
         return this.collider;
     }
 
     public void translateTo(Point newLocation){ //Translate square and collider
-        this.setLocation(newLocation);
-        newLocation.translate(-1, -1);
         this.collider.setLocation(newLocation);
+        this.setLocation(newLocation);
     }
 
     @Override
