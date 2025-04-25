@@ -1,4 +1,4 @@
-package SpawnOnBtnPress;
+package RoomDesignerMain;
 
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -6,8 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneLayout;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
@@ -24,6 +26,8 @@ import java.awt.event.MouseListener;
 import java.awt.Toolkit;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 
@@ -54,7 +58,7 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
         //COLLISION LOGIC
         Boolean isCollision = false;
-        for (CustomJ otherSquare:TestGui.visibleObjectArray){
+        for (CustomJ otherSquare:RoomDesignerGui.visibleObjectArray){
             if (otherSquare != selectedSquare){
                 if (selectedSquare.checkForCollision(otherSquare)){ // Checks for intersection
                     newLocation = resolveCollision(selectedSquare.getBounds(), otherSquare.getBounds());
@@ -141,25 +145,88 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 }
 
 
-public class TestGui {
+public class RoomDesignerGui {
     public static JFrame f;
     public static ArrayList<CustomJ> visibleObjectArray = new ArrayList<CustomJ>();
     public static CursorTrackingJPanel roomZone;
 
     public static void main(String[] args) {
-
+        RoomDesignerGui mainWindow = new RoomDesignerGui();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                double width = screenSize.getWidth();
-                double height = screenSize.getHeight();
-                System.out.println(Double.toString(width) + " " + Double.toString(height));
-                createGui(); 
+                mainWindow.createGui();
+            }
+        });
+    }
+    private void createItemWindow(CursorTrackingJPanel parsedPanel){
+        final CursorTrackingJPanel p = parsedPanel; // Fixes error of in 
+
+        JFrame popUpFrame = new JFrame();
+        popUpFrame.setAlwaysOnTop(true);
+        popUpFrame.setResizable(false);
+        popUpFrame.setSize(400, 400);
+        popUpFrame.setLocation(f.getX()+(f.getWidth()/2)-(popUpFrame.getWidth()/2), f.getY()+(f.getHeight()/2)-(popUpFrame.getHeight()/2));
+        popUpFrame.setVisible(true); 
+
+        JPanel popUpPanel = new JPanel();
+        popUpPanel.setSize(popUpFrame.getSize());
+        popUpPanel.setBackground(Color.GREEN);
+        popUpPanel.setLayout(new GridBagLayout());
+        popUpFrame.add(popUpPanel);
+
+        GridBagConstraints c = new GridBagConstraints();
+
+        JLabel title = new JLabel("Title");
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 3;
+        popUpPanel.add(title, c);
+
+        JTextField widthTextBox = new JTextField();
+        widthTextBox.setColumns(10);
+        c.gridx = 1;
+        c.gridy = 1;
+        c.gridwidth = 2;
+        popUpPanel.add(widthTextBox, c);
+
+        JTextField heightTextBox = new JTextField();
+        heightTextBox.setColumns(10);
+        c.gridx = 1;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        popUpPanel.add(heightTextBox, c);
+
+        JLabel widthLabel = new JLabel("Width:");
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridwidth = 1;
+        popUpPanel.add(widthLabel, c);
+
+        JLabel heightLabel = new JLabel("Height:");
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        popUpPanel.add(heightLabel, c);
+
+        JButton createBtn = new JButton("Create");
+        c.gridx = 0;
+        c.gridy = 3;
+        c.gridwidth = 1;
+        popUpPanel.add(createBtn, c);
+
+        createBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            int width = Integer.parseInt(widthTextBox.getText());
+            int height = Integer.parseInt(heightTextBox.getText());
+            CustomJ createdItem = new CustomJ(0, 0, width, height, p);
+            displayItem(createdItem);
+            popUpFrame.remove(popUpPanel);
             }
         });
     }
 
-    public static void createGui(){
+    private void createGui(){
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         f.setResizable(false);
@@ -177,7 +244,19 @@ public class TestGui {
         JPanel topPanel = new JPanel();
         topPanel.setBackground(new Color(102, 153, 153, 255));
         topPanel.setBounds(0, 0, 1300, 70);
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
         f.add(topPanel);
+
+        JButton createItem = new JButton("Create");
+        createItem.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                createItemWindow(roomZone);
+            }
+        });
+
+        topPanel.add(Box.createHorizontalGlue());
+        topPanel.add(createItem);
 
         JPanel rightPanel = new JPanel();
         rightPanel.setBackground(new Color(153, 204, 255, 255));
@@ -217,14 +296,13 @@ public class TestGui {
         btn1.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e){
-                if (!visibleObjectArray.isEmpty()){
+                if (!visibleObjectArray.isEmpty() && roomZone.selectedSquare != null){
                     CustomJ cur = roomZone.getSelectedSquare();
                     roomZone.remove(cur);
                     visibleObjectArray.remove(cur);
                     roomZone.repaint();
                     roomZone.selectedSquare = null;
                 }
-                System.out.println(visibleObjectArray);
             }
         });
 
@@ -240,27 +318,32 @@ public class TestGui {
         btn2.addActionListener(new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e){
-            CustomJ t = new CustomJ(10, 10, roomZone);
-            visibleObjectArray.add(t);
-            roomZone.add(t);
-            roomZone.assignMoveableToObject(t);
-            roomZone.repaint();
+            CustomJ t = new CustomJ(0, 0, 10, 10, roomZone);
+            displayItem(t);
         }
     });
 
     innerScrollPanel.add(btn2);
     btn2.setAlignmentX(btn2.CENTER_ALIGNMENT);
-    }   
+    } 
+    
+    public static void displayItem(CustomJ item){
+        visibleObjectArray.add(item);
+        CursorTrackingJPanel allocatedPanel = item.getPanel();
+        allocatedPanel.add(item);
+        allocatedPanel.assignMoveableToObject(item);
+        allocatedPanel.repaint();
+    }
 }
 
 
 class CustomJ extends JPanel implements MouseListener{
     private CursorTrackingJPanel panel;
     private Rectangle collider;
-    public CustomJ(int startingX, int startingY, CursorTrackingJPanel p){
+    public CustomJ(int startingX, int startingY, int width, int height, CursorTrackingJPanel p){
         panel = p;
-        this.setBounds(startingX, startingY, 50, 50);
-        collider = new Rectangle(startingX, startingY, 50, 50); //Creates collider 1 pixel bigger
+        this.setBounds(startingX, startingY, width, height);
+        collider = new Rectangle(startingX, startingY, width, height); //Creates collider 1 pixel bigger
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         changeColorDefault();
@@ -270,7 +353,6 @@ class CustomJ extends JPanel implements MouseListener{
         this.addMouseMotionListener(panel);
 
         addMouseListener(this);
-
     }
 
     public void changeColorDefault(){
@@ -289,6 +371,10 @@ class CustomJ extends JPanel implements MouseListener{
 
     public Rectangle getCollider(){
         return this.collider;
+    }
+
+    public CursorTrackingJPanel getPanel(){
+        return this.panel;
     }
 
     public void translateTo(Point newLocation){ //Translate square and collider
