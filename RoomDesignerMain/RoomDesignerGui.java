@@ -185,7 +185,7 @@ public class RoomDesignerGui {
         JTextField widthTextBox = new JTextField();
         widthTextBox.setColumns(10);
         c.gridx = 1;
-        c.gridy = 1;
+        c.gridy = 3;
         c.gridwidth = 2;
         popUpPanel.add(widthTextBox, c);
 
@@ -196,21 +196,34 @@ public class RoomDesignerGui {
         c.gridwidth = 2;
         popUpPanel.add(heightTextBox, c);
 
-        JLabel widthLabel = new JLabel("Width:");
+        JTextField nameTextBox = new JTextField();
+        nameTextBox.setColumns(10);
+        c.gridx = 1;
+        c.gridy = 1;
+        c.gridwidth = 2;
+        popUpPanel.add(nameTextBox, c);
+
+        JLabel nameLabel = new JLabel("Name:");
         c.gridx = 0;
         c.gridy = 1;
+        c.gridwidth = 1;
+        popUpPanel.add(nameLabel, c);
+
+        JLabel widthLabel = new JLabel("Width:");
+        c.gridx = 0;
+        c.gridy = 2;
         c.gridwidth = 1;
         popUpPanel.add(widthLabel, c);
 
         JLabel heightLabel = new JLabel("Height:");
         c.gridx = 0;
-        c.gridy = 2;
+        c.gridy = 3;
         c.gridwidth = 1;
         popUpPanel.add(heightLabel, c);
 
         JButton createBtn = new JButton("Create");
         c.gridx = 0;
-        c.gridy = 3;
+        c.gridy = 4;
         c.gridwidth = 1;
         popUpPanel.add(createBtn, c);
 
@@ -219,7 +232,8 @@ public class RoomDesignerGui {
             public void actionPerformed(ActionEvent e) {
             int width = Integer.parseInt(widthTextBox.getText());
             int height = Integer.parseInt(heightTextBox.getText());
-            CustomJ createdItem = new CustomJ(0, 0, width, height, p);
+            String name = nameTextBox.getText();
+            CustomJ createdItem = new CustomJ(name, 0, 0, width, height, p);
             displayItem(createdItem);
             popUpFrame.remove(popUpPanel);
             }
@@ -318,7 +332,7 @@ public class RoomDesignerGui {
         btn2.addActionListener(new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e){
-            CustomJ t = new CustomJ(0, 0, 10, 10, roomZone);
+            CustomJ t = new CustomJ("TEST", 0, 0, 40, 40, roomZone);
             displayItem(t);
         }
     });
@@ -340,14 +354,25 @@ public class RoomDesignerGui {
 class CustomJ extends JPanel implements MouseListener{
     private CursorTrackingJPanel panel;
     private Rectangle collider;
-    public CustomJ(int startingX, int startingY, int width, int height, CursorTrackingJPanel p){
+    private String name;
+    public CustomJ(String gName, int startingX, int startingY, int width, int height, CursorTrackingJPanel p){
         panel = p;
+        name = gName;
         this.setBounds(startingX, startingY, width, height);
         collider = new Rectangle(startingX, startingY, width, height); //Creates collider 1 pixel bigger
 
         setBorder(BorderFactory.createLineBorder(Color.black));
         changeColorDefault();
         setVisible(true);
+
+        this.setLayout(null);
+        JLabel displayName = new JLabel(name);
+        Dimension preferredLabelSize = displayName.getPreferredSize();
+        int labelWidth = preferredLabelSize.width;
+        int labelHeight = preferredLabelSize.height;
+        displayName.setBounds((width/2 - labelWidth/2), (height/2 - labelHeight/2), labelWidth, labelHeight);
+        this.add(displayName);
+
 
         this.addMouseListener(panel);
         this.addMouseMotionListener(panel);
