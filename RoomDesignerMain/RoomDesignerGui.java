@@ -149,6 +149,7 @@ public class RoomDesignerGui {
     public static JFrame f;
     public static ArrayList<CustomJ> visibleObjectArray = new ArrayList<CustomJ>();
     public static CursorTrackingJPanel roomZone;
+    public static JPanel innerScrollPanel;
 
     public static void main(String[] args) {
         RoomDesignerGui mainWindow = new RoomDesignerGui();
@@ -235,9 +236,18 @@ public class RoomDesignerGui {
             String name = nameTextBox.getText();
             CustomJ createdItem = new CustomJ(name, 0, 0, width, height, p);
             displayItem(createdItem);
-            popUpFrame.remove(popUpPanel);
+            addItemToScrollable(name, width, height);
             }
         });
+    }
+
+    private static void addItemToScrollable(String name, int width, int height){
+        JLabel icon1 = new JLabel("<html>" + name + "<br>Width: " + width + "<br>Height: " + height + "</html>");
+        icon1.setAlignmentX(icon1.CENTER_ALIGNMENT);
+        icon1.setBorder(new EmptyBorder(30, 0, 0, 30));
+        innerScrollPanel.add(icon1);
+        innerScrollPanel.revalidate();
+        innerScrollPanel.repaint();
     }
 
     private void createGui(){
@@ -278,33 +288,14 @@ public class RoomDesignerGui {
         rightPanel.setLayout(null);
         f.add(rightPanel);
 
-        JPanel innerScrollPanel = new JPanel();
+        innerScrollPanel = new JPanel();
         innerScrollPanel.setLayout(new BoxLayout(innerScrollPanel, BoxLayout.PAGE_AXIS));
-
 
         JScrollPane scrollItemsPanel = new JScrollPane(innerScrollPanel);
         rightPanel.add(scrollItemsPanel);
         scrollItemsPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollItemsPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollItemsPanel.setBounds(0, 0, 285, 700);
-
-        JLabel icon1 = new JLabel("SQUARE");
-        icon1.setAlignmentX(icon1.CENTER_ALIGNMENT);
-        icon1.setBorder(new EmptyBorder(30, 0, 0, 30));
-        innerScrollPanel.add(icon1);
-
-        JLabel icon2 = new JLabel("Shape 2");
-        icon2.setAlignmentX(icon2.CENTER_ALIGNMENT);
-        icon2.setBorder(new EmptyBorder(30, 0, 0, 30));
-        innerScrollPanel.add(icon2);
-
-        JLabel icon3 = new JLabel("Shape 3");
-        icon3.setAlignmentX(icon3.CENTER_ALIGNMENT);
-        icon3.setBorder(new EmptyBorder(30, 0, 0, 30));
-        innerScrollPanel.add(icon3);
-
-        
-
 
         JButton btn1 = new JButton("REMOVE");
         btn1.addActionListener(new ActionListener(){
