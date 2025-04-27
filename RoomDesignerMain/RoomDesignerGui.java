@@ -28,6 +28,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 
@@ -149,6 +150,7 @@ public class RoomDesignerGui {
     public static JFrame f;
     public static ArrayList<CustomJ> visibleObjectArray = new ArrayList<CustomJ>();
     public static CursorTrackingJPanel roomZone;
+    public static JPanel roomHolder;
     public static JPanel innerScrollPanel;
 
     public static void main(String[] args) {
@@ -250,6 +252,45 @@ public class RoomDesignerGui {
         innerScrollPanel.repaint();
     }
 
+    private static void createRoomZoneWindow(){
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.ORANGE);
+        panel.setLayout(new GridLayout(3, 2, 10, 10));
+        panel.setBounds(0, 0, 500, 500);
+        roomHolder.add(panel);
+
+        JLabel widthLabel = new JLabel("Width:");
+        JTextField widthField = new JTextField();
+        widthField.setPreferredSize(new Dimension(100, 25));
+
+        JLabel heightLabel = new JLabel("Height:");
+        JTextField heightField = new JTextField();
+        heightField.setPreferredSize(new Dimension(100, 25));
+
+        panel.add(widthLabel);
+        panel.add(widthField);
+        panel.add(heightLabel);
+        panel.add(heightField);
+
+        JButton submitButton = new JButton("Submit");
+
+        submitButton.addActionListener(e -> {
+            roomHolder.remove(panel);
+
+            int width = Integer.parseInt(widthField.getText());
+            int height = Integer.parseInt(heightField.getText());
+            roomZone = new CursorTrackingJPanel();
+            roomZone.setBackground(Color.BLUE);
+            roomZone.setBounds(110, 110, width, height);
+            roomHolder.add(roomZone);
+            
+            roomHolder.revalidate();
+            roomHolder.repaint();
+        });
+
+        panel.add(submitButton);
+    }
+
     private void createGui(){
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
@@ -259,11 +300,13 @@ public class RoomDesignerGui {
         f.setVisible(true);
         f.setLayout(null);
 
-        roomZone = new CursorTrackingJPanel();
-        roomZone.setBackground(Color.GRAY);
-        roomZone.setBounds(0, 70, 1300, 830);
-        roomZone.setVisible(true);
-        f.add(roomZone);
+        roomHolder = new JPanel();
+        roomHolder.setBackground(Color.GRAY);
+        roomHolder.setBounds(0, 70, 1300, 830);
+        roomHolder.setLayout(null);
+        f.add(roomHolder);
+
+        createRoomZoneWindow();
 
         JPanel topPanel = new JPanel();
         topPanel.setBackground(new Color(102, 153, 153, 255));
