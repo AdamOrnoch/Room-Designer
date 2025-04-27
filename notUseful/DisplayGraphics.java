@@ -1,3 +1,4 @@
+package notUseful;
 import java.awt.*;  
 import javax.swing.JFrame;  
   

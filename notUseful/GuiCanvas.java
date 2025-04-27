@@ -1,4 +1,4 @@
-package CoreLogicAttempt;
+package notUseful;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;

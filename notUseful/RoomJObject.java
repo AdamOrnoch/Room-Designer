@@ -1,4 +1,4 @@
-package CoreLogicAttempt;
+package notUseful;
 
 import java.awt.Color;
 import java.awt.Graphics;

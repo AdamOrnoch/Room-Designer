@@ -1,3 +1,4 @@
+package notUseful;
 import javax.swing.*;
 import java.awt.*;
 

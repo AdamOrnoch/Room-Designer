@@ -1,7 +1,5 @@
+package notUseful;
 import javax.swing.SwingUtilities;
-
-import CoreLogicAttempt.RoomJObject;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.BorderFactory;
