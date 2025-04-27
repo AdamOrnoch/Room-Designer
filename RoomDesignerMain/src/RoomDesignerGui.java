@@ -1,6 +1,7 @@
-package RoomDesignerMain;
+package RoomDesignerMain.src;
 
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,11 +12,13 @@ import javax.swing.ScrollPaneLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -29,6 +32,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 
@@ -147,20 +151,37 @@ class CursorTrackingJPanel extends JPanel implements MouseListener, MouseMotionL
 
 
 public class RoomDesignerGui {
-    public static JFrame f;
+    private static JFrame f;
     public static ArrayList<CustomJ> visibleObjectArray = new ArrayList<CustomJ>();
     public static CursorTrackingJPanel roomZone;
     public static JPanel roomHolder;
     public static JPanel innerScrollPanel;
+    public static JPanel fp;
 
     public static void main(String[] args) {
-        RoomDesignerGui mainWindow = new RoomDesignerGui();
+        RoomDesignerGui main = new RoomDesignerGui();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                mainWindow.createGui();
+                main.frameSetup();
+                main.startWindow();
             }
         });
     }
+
+    private void frameSetup(){
+        f = new JFrame("Room Designer");
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        f.setResizable(false);
+        f.setSize(1600,939);
+        f.setLayout(null);
+
+        fp = new JPanel();
+        fp.setLayout(null); 
+        fp.setBackground(Color.BLACK);
+        f.setContentPane(fp);
+        f.setVisible(true);
+    }
+
     private void createItemWindow(CursorTrackingJPanel parsedPanel){
         final CursorTrackingJPanel p = parsedPanel; // Fixes error of in 
 
@@ -290,21 +311,50 @@ public class RoomDesignerGui {
 
         panel.add(submitButton);
     }
+    
+    private void startWindow(){
+        JPanel backgroundPanel = new JPanel() {
+            Image backgroundImage = new ImageIcon("RoomDesignerMain\\images\\frontWindow.png").getImage();
+        
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        backgroundPanel.setLayout(null); 
+        backgroundPanel.setBounds(0,0,fp.getWidth(), fp.getHeight());
 
-    private void createGui(){
-        f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        f.setResizable(false);
-        f.setSize(1600,939);
+        ImageIcon startBtnImage = new ImageIcon("RoomDesignerMain\\images\\startBtn.png");
+        JButton startBtn = new JButton(startBtnImage);
+        Border buttonBorder = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.BLACK, 3),  // Outer border: blue, 3px
+            BorderFactory.createEmptyBorder(10, 20, 10, 20) // Inner padding: 10px top and bottom, 20px left and right
+        );
+        startBtn.setBorder(buttonBorder);
+        startBtn.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                fp.remove(backgroundPanel);
+                mainWindow();
+                fp.revalidate();
+                fp.repaint();
+            }
+        });
 
-        f.setVisible(true);
-        f.setLayout(null);
+        backgroundPanel.add(startBtn);
+        startBtn.setBounds(230, 520, 300, 150);
+
+        fp.add(backgroundPanel);
+    }
+
+    private void mainWindow(){
 
         roomHolder = new JPanel();
         roomHolder.setBackground(Color.GRAY);
         roomHolder.setBounds(0, 70, 1300, 830);
         roomHolder.setLayout(null);
-        f.add(roomHolder);
+        fp.add(roomHolder);
 
         createRoomZoneWindow();
 
@@ -312,7 +362,7 @@ public class RoomDesignerGui {
         topPanel.setBackground(new Color(102, 153, 153, 255));
         topPanel.setBounds(0, 0, 1300, 70);
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-        f.add(topPanel);
+        fp.add(topPanel);
 
         JButton createItem = new JButton("Create");
         createItem.addActionListener(new ActionListener(){
@@ -329,7 +379,7 @@ public class RoomDesignerGui {
         rightPanel.setBackground(new Color(153, 204, 255, 255));
         rightPanel.setBounds(1300, 0, 300, 900);
         rightPanel.setLayout(null);
-        f.add(rightPanel);
+        fp.add(rightPanel);
 
         innerScrollPanel = new JPanel();
         innerScrollPanel.setLayout(new BoxLayout(innerScrollPanel, BoxLayout.PAGE_AXIS));
